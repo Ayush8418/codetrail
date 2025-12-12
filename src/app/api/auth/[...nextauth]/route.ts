@@ -160,6 +160,7 @@ export const authOptions: NextAuthOptions = {
     },
 
     // session() — Controls what the client receives
+    // runs on request to api/auth/session.
     async session({ session, token }) {
       try {
         // Copy our custom JWT fields into the session object

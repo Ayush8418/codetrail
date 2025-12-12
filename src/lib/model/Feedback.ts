@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, model } from "mongoose";
+import mongoose, { Schema, Document } from "mongoose";
 
 export interface IFeedback extends Document {
   user?: mongoose.Types.ObjectId;

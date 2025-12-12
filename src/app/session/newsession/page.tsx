@@ -1,64 +1,116 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import SessionNotes from "@/components/SessionNotes";
+import Timer from "@/components/Timer";
+import axios from "axios";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export default function NewSessionPage() {
-  const [seconds, setSeconds] = useState(0);
-  const [time, setTime] = useState("");
-  const [date, setDate] = useState("");
-  const [isStarted, setIsStarted] = useState(false);
+  type SessionData = {
+    topic: string;
+    description: string;
+    timestamps: Date[];
+    backupStartTime: Date;
+    duration: number
+  };
+  const [sessionData, setSessionData] = useState<SessionData>({
+    topic: "",
+    description: "",
+    timestamps: [],
+    backupStartTime: new Date(),
+    duration: 0
+  });
 
-  useEffect(() => {
-    setDate(new Date().toLocaleDateString());
-    setTime(new Date().toLocaleTimeString());
-  }, []);
+  const [isNotesExpanded, setIsNotesExpanded] = useState(false);
+  const [resetKey, setResetKey] = useState(0);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTime(new Date().toLocaleTimeString());
+  const saveSession = async () => {
+  try {
+    const payload = { ...sessionData };
 
-      if (isStarted) {
-        setSeconds(prev => prev + 1);
-      }
-    }, 1000);
+    if (payload.timestamps.length === 0) {
+      payload.timestamps = [payload.backupStartTime!, new Date()];
+      payload.duration = Math.floor((payload.timestamps[payload.timestamps.length - 1].getTime() - payload.timestamps[0].getTime()) / 1000);
+    } 
+    else if (payload.timestamps.length % 2 !== 0) {
+      payload.timestamps = [...payload.timestamps, new Date()];
+    }
+    if (!payload.topic.trim()) {
+      toast.warning("Topic is required");
+      return;
+    }
+    console.log("payload------",payload)
+    const res = await axios.post("/api/session", payload);
+    toast.success(res.data.message);
 
-    return () => clearInterval(interval);
-  }, [isStarted]);
+    if (res.status === 201) {
+      setSessionData({
+        topic: "",
+        description: "",
+        timestamps: [],
+        backupStartTime:new Date(),
+        duration:0
+      });
+      setResetKey((prev) => prev + 1);
+    }
+  } catch (err: any) {
+    toast.error(err.response.data.message);
+    console.log(err);
+  }
+};
 
-  if (time === null) return null; // prevents server → client mismatch
+  const handleTimerData = (data: any) => {
+    setSessionData((prev) => ({ ...prev, ...data }));
+  };
+  const handleNotesData = (data: any) => {
+    setSessionData((prev) => ({ ...prev, ...data }));
+  };
 
   return (
-    <div>
-      <div>
-        {date}
+    <div className="min-h-screen px-6 py-6">
+
+      {/* Save Button */}
+      <div className="flex justify-center">
+        <button
+          onClick={() => {
+            const confirmReset = window.confirm("Are you sure you want to save the session?");
+            if (!confirmReset) return;
+            saveSession()
+          }}
+          className="
+            px-6 py-3 rounded-xl mb-8 mt-2
+            text-white font-semibold tracking-wide
+            bg-gradient-to-r from-blue-500 to-indigo-600
+            shadow-md shadow-blue-500/30
+            transition-all duration-300 ease-out
+            hover:from-blue-600 hover:to-indigo-700
+            hover:shadow-xl hover:shadow-blue-500/40
+            hover:scale-[1.03]
+          "
+        >
+          Save Session
+        </button>
       </div>
 
-      <div className="text-9xl">
-        {time.substring(0,time.length-6)} 
-        <span className="text-7xl ">
-          {" " + time.substring(time.length-6, time.length-2)}
-        </span>
-        <span className="text-3xl">
-          {time.substring(time.length-2)} 
-        </span>
-      </div>
+      {/* FLEX LAYOUT */}
+      <div
+  className={`
+    transition-all duration-300 gap-12
+    ${isNotesExpanded ? "flex flex-col" : "flex flex-col lg:flex-row"}
+  `}
+>
+  <Timer key={resetKey} onData={handleTimerData} />
+  <SessionNotes
+  key={resetKey + 1}
+  onData={handleNotesData}
+  isExpanded={isNotesExpanded}
+  toggleExpand={() => setIsNotesExpanded(prev => !prev)}
+  initialTopic=""
+  initialDescription="Start Writing..."
+/>
 
-      <div>
-        {Math.floor(seconds/3600)}:{Math.floor((seconds%3600)/60)}:{seconds%60}
+</div>
 
-        {
-          isStarted 
-          ? 
-          <button onClick={()=>setIsStarted(false)}>stop</button>
-          : 
-          <button onClick={()=>setIsStarted(true)}>start</button>
-        }
-
-        <button onClick={()=>{setIsStarted(false); setSeconds(0)}}>reset</button>
-
-      </div>
-      
-        
     </div>
-    
   );
 }

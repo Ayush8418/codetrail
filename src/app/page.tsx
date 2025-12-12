@@ -15,7 +15,7 @@ export default async function HomePage(){
     <div>
       <h1>Hello, Codetrail!</h1>
       <p>you Session: <br /> {JSON.stringify(session)}</p>
+      <div className="h-[1500px]">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quis alias, ducimus fugiat mollitia deleniti velit quos id voluptas aspernatur nesciunt libero odit officia non repudiandae quisquam accusantium, vitae perferendis ab!</div>   
     </div>
   )
-
 }

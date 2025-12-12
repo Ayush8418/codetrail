@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, model } from "mongoose";
+import mongoose, { Schema, Document } from "mongoose";
 
 export interface IUser extends Document {
   _id: mongoose.Types.ObjectId;
@@ -9,6 +9,8 @@ export interface IUser extends Document {
 
   googleId?: string;
   githubId?: string;
+
+  isPremium: boolean
 
   forgotToken?: string;
   forgotTokenExp?: Date;
@@ -48,6 +50,11 @@ const userSchema = new Schema<IUser>(
 
     googleId: { type: String },
     githubId: { type: String },
+
+    isPremium: {
+      type: Boolean,
+      default: false,
+    },
 
     forgotToken: {type: String, defaul: ""},
     forgotTokenExp: {type: Date, default: Date.now()},

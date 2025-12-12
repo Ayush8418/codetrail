@@ -26,7 +26,7 @@ export async function sendResetEmail(to: string): Promise<boolean> {
     await dbConnect();
 
     const now = new Date();
-    const expire =  new Date(now.getTime() + 10 * 60 * 1000); // 10 minutes expiry
+    const expire = new Date(now.getTime() + 10 * 60 * 1000); // 10 minutes expiry
 
     const user = await UserModel.findOneAndUpdate(
       { email: to.toLowerCase() },
@@ -43,12 +43,14 @@ export async function sendResetEmail(to: string): Promise<boolean> {
 
     const { error } = await resend.emails.send({
       from: "Acme <onboarding@resend.dev>",
-      to: 'harshweather2712@gmail.com',
+      to: "harshweather2712@gmail.com",
       subject: "Password Reset",
       html: `
         <h1>Password Reset</h1>
         <p>Click the link below to reset your password:</p>
-        <a href="${recoveryLink}" target="_blank" rel="noopener noreferrer">Reset Password</a>
+        <a href="${recoveryLink}" target="_blank" rel="noopener noreferrer">
+          Reset Password
+        </a>
         <p>This link will expire in 10 minutes.</p>
       `,
     });
@@ -69,7 +71,7 @@ export async function sendResetEmail(to: string): Promise<boolean> {
 /**
  * Send email verification link
  */
-export async function sendVerificationEmail(to: string) {
+export async function sendVerificationEmail(to: string): Promise<boolean> {
   const token = randomBytes(32).toString("hex");
 
   try {
@@ -91,14 +93,17 @@ export async function sendVerificationEmail(to: string) {
 
     const verifyLink = `${process.env.DOMAIN_URL}/api/auth/verify?token=${token}`;
 
+
     const { error } = await resend.emails.send({
       from: "Acme <onboarding@resend.dev>",
-      to: 'harshweather2712@gmail.com',
+      to: "harshweather2712@gmail.com",
       subject: "Verify Your Email",
       html: `
         <h1>Email Verification</h1>
         <p>Click the link below to verify your email address:</p>
-        <a href="${verifyLink}" target="_blank" rel="noopener noreferrer">Verify Email</a>
+        <a href="${verifyLink}" target="_blank" rel="noopener noreferrer">
+          Verify Email
+        </a>
         <p>This link will expire in 10 minutes.</p>
       `,
     });

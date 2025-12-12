@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, model } from "mongoose";
+import mongoose, { Schema, Document } from "mongoose";
 
 export interface IStudySession extends Document {
   user: mongoose.Types.ObjectId;
@@ -9,6 +9,7 @@ export interface IStudySession extends Document {
   endTime: Date;
   breakTime?: number; // optional break duration
   createdAt: Date;
+  timestamps: [Date];
 }
 
 const studySessionSchema = new Schema<IStudySession>(
@@ -20,8 +21,9 @@ const studySessionSchema = new Schema<IStudySession>(
     startTime: { type: Date, required: true },
     endTime: { type: Date, required: true },
     breakTime: { type: Number, default: 0 },
+    timestamps: {type: [Date]},
+    createdAt: {type: Date, default: Date.now}
   },
-  { timestamps: true }
 );
 
 const StudySessionModel = (mongoose.models.StudySession as mongoose.Model<IStudySession>) || (mongoose.model<IStudySession>('StudySession', studySessionSchema));

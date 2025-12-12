@@ -1,78 +1,127 @@
 "use client";
-import axios from "axios";
-import { NextRequest } from "next/server";
-import { useState } from "react";
-import { useSearchParams } from "next/navigation";
 
-export default function ResetPasswordPage(req: NextRequest) {
+import axios from "axios";
+import { useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { toast } from "sonner";
+
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
+
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+
+export default function ResetPasswordPage() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const token = searchParams.get("token");
 
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  async function submit() {
-    if (password === confirmPassword) {
-      try {
-        setLoading(true);
-        setMessage("");
-        const res = await axios.post(`http://localhost:3000/api/auth/reset`, {password: password, token});
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
 
-        // ✅ Handle known API responses
-        if (res.data?.success) {
-          setMessage(res.data.message);
-        }
-        else {
-          setMessage("Password reset failed. Please try again.");
-        }
-      }
-      catch (error: any) {
-        console.error("Password reset error:", error);
-        // ✅ Handle different types of axios errors
-        if (error.response) {
-          setMessage( error.response.data?.message ||"Server error occurred while resetting password." );
-        } 
-        else {
-          setMessage("An unexpected error occurred. Please try again later.");
-        }
-      }
-      finally {
-        setLoading(false);
-      }
+    if (!password || !confirmPassword) {
+      return toast.warning("All fields are required.");
     }
-    else {
-      setMessage("Passwords do not match. Please try again.");
+
+    if (password !== confirmPassword) {
+      return toast.error("Passwords do not match.");
+    }
+
+    if (!token) {
+      return toast.error("Invalid or missing reset token.");
+    }
+
+    try {
+      setLoading(true);
+
+      const res = await axios.post("/api/auth/reset", {
+        password,
+        token,
+      });
+
+      toast.success(res.data.message || "Password reset successful.");
+
+      // ✅ optional redirect after success
+      setTimeout(() => {
+        router.push("/auth/signin");
+      }, 1500);
+
+    } catch (err: any) {
+      console.error("Reset password error:", err);
+
+      toast.error(
+        err?.response?.data?.message ||
+          "Server error while resetting password."
+      );
+    } finally {
+      setLoading(false);
     }
   }
 
   return (
-    <div>
-      <input
-        type="password"
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder="new password"
-      />
-      <input
-        type="password"
-        onChange={(e) => setConfirmPassword(e.target.value)}
-        placeholder="confirm password"
-      />
-      <button onClick={submit} disabled={loading}>
-        {loading ? "Submitting..." : "Submit"}
-      </button>
+    <main className="flex justify-center items-center min-h-screen">
+      <Card className="w-full max-w-sm">
+        <CardHeader>
+          <CardTitle>Reset Password</CardTitle>
+          <CardDescription>Enter your new password</CardDescription>
+        </CardHeader>
 
-      {/* ✅ Message feedback for user */}
-      <p
-        style={{
-          color: message.toLowerCase().includes("success")
-            ? "green"
-            : "red",
-        }}
-      >
-        {message}
-      </p>
-    </div>
+        <CardContent>
+          <form onSubmit={submit} className="flex flex-col gap-5">
+
+            {/* New Password */}
+            <div className="grid gap-2">
+              <Label>New Password</Label>
+              <Input
+                type="password"
+                placeholder="Enter new password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+
+            {/* Confirm Password */}
+            <div className="grid gap-2">
+              <Label>Confirm Password</Label>
+              <Input
+                type="password"
+                placeholder="Confirm password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+              />
+            </div>
+
+          </form>
+        </CardContent>
+
+        <CardFooter className="flex flex-col gap-3">
+          <Button
+            className="w-full"
+            disabled={loading}
+            onClick={submit}
+          >
+            {loading ? "Resetting..." : "Reset Password"}
+          </Button>
+
+          <Link href="/auth/signin">
+            <Button variant="link">Back to Login</Button>
+          </Link>
+        </CardFooter>
+      </Card>
+    </main>
   );
 }
