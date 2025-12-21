@@ -14,6 +14,10 @@ export interface IQuestion extends Document {
   revised: boolean;
   createdAt: Date;
   updatedAt: Date;
+  revisions: {
+    date: Date;
+    done: boolean;
+  }[];
 }
 
 const questionSchema = new Schema<IQuestion>(
@@ -37,6 +41,12 @@ const questionSchema = new Schema<IQuestion>(
     solution: { type: String },
     links: [{ type: String }],
     revised: { type: Boolean, default: false },
+    revisions: [
+      {
+        date: { type: Date, required: true },
+        done: { type: Boolean, default: false }
+      }
+    ],
   },
   { timestamps: true }
 );

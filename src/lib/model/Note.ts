@@ -12,6 +12,10 @@ export interface INote extends Document {
 
   createdAt: Date;
   updatedAt: Date;
+  revisions: {
+    date: Date;
+    done: boolean;
+  }[];
 }
 
 const noteSchema = new Schema<INote>(
@@ -28,6 +32,12 @@ const noteSchema = new Schema<INote>(
     code: { type: String },
     link: { type: String },
     revised: { type: Boolean, default: false },
+    revisions: [
+      {
+        date: { type: Date, required: true },
+        done: { type: Boolean, default: false }
+      }
+    ],
   },
   { timestamps: true }
 );

@@ -10,6 +10,10 @@ export interface IStudySession extends Document {
   breakTime?: number; // optional break duration
   createdAt: Date;
   timestamps: [Date];
+  revisions: {
+    date: Date;
+    done: boolean;
+  }[];
 }
 
 const studySessionSchema = new Schema<IStudySession>(
@@ -22,9 +26,17 @@ const studySessionSchema = new Schema<IStudySession>(
     endTime: { type: Date, required: true },
     breakTime: { type: Number, default: 0 },
     timestamps: {type: [Date]},
-    createdAt: {type: Date, default: Date.now}
+    createdAt: {type: Date, default: Date.now},
+    revisions: {type:[
+      {
+        date: { type: Date, required: false },
+        done: { type: Boolean, default: false }
+      }
+    ], default: []},
   },
 );
+
+studySessionSchema.index({ user: 1, createdAt: 1 });
 
 const StudySessionModel = (mongoose.models.StudySession as mongoose.Model<IStudySession>) || (mongoose.model<IStudySession>('StudySession', studySessionSchema));
 

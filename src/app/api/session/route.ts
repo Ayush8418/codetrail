@@ -6,32 +6,24 @@ import UserModel from "@/lib/model/User";
 export async function POST(request: Request) {
   try {
     const userId = request.headers.get("x-user-id");
-
     if (!userId) {
       return NextResponse.json({ message: "Not authenticated" }, { status: 401 });
     }
-
     const body = await request.json();
     const { topic, description, timestamps, duration } = body;
-
     const startTime = timestamps[0];
     const endTime = timestamps[timestamps.length - 1];
-
     await connectDB();
-
     // ✅ 1. Get user & premium status
     const user = await UserModel.findById(userId).select("isPremium");
-
     if (!user) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
-
     const DAILY_LIMIT = user.isPremium ? 10 : 4;
 
     // ✅ 2. Get today's date range
     const startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
-
     const endOfDay = new Date();
     endOfDay.setHours(23, 59, 59, 999);
 
@@ -77,17 +69,51 @@ export async function POST(request: Request) {
 }
 
 
+export async function GET(request: NextRequest) {
+  const userId = request.headers.get("x-user-id");
+  if (!userId) {
+    return NextResponse.json({ message: "Not authenticated" }, { status: 401 });
+  }
 
-export async function GET(request: NextRequest){
-    const userId = request.headers.get("x-user-id");
+  const { searchParams } = new URL(request.url);
 
-    if (!userId) {
-      return NextResponse.json({ message: "Not authenticated" }, { status: 401 });
-    }
+  const page = Number(searchParams.get("page") || 1);
+  const limit = Number(searchParams.get("limit") || 15);
+  const search = searchParams.get("search") || "";
+  const sortOrder = searchParams.get("sort") === "asc" ? 1 : -1;
+  const fromDate = searchParams.get("fromDate");
+  const toDate = searchParams.get("toDate");
 
-    await connectDB();
+  const skip = (page - 1) * limit;
 
-    const data = await StudySessionModel.find({user: userId});
+  const query: any = { user: userId };
 
-    return NextResponse.json({success: true, message: "all studt sessions are fetched", data: data, status: 200});
+  // 🔍 search
+  if (search) {
+    query.topic = { $regex: search, $options: "i" };
+  }
+
+  // 📅 date filter
+  if (fromDate || toDate) {
+    query.createdAt = {};
+    if (fromDate) query.createdAt.$gte = new Date(fromDate);
+    if (toDate) query.createdAt.$lte = new Date(toDate);
+  }
+
+  await connectDB();
+
+  const [sessions, total] = await Promise.all([
+    StudySessionModel.find(query)
+      .sort({ createdAt: sortOrder })
+      .skip(skip)
+      .limit(limit),
+    StudySessionModel.countDocuments(query),
+  ]);
+
+  return NextResponse.json({
+    data: sessions,
+    pagination: {
+      totalPages: Math.ceil(total / limit),
+    },
+  });
 }
