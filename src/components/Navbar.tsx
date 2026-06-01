@@ -2,7 +2,8 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { CircleCheckIcon, CircleHelpIcon, CircleIcon } from "lucide-react"
+import { LineChart, NotebookPen } from "lucide-react";
+
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import {
@@ -15,43 +16,67 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
 
-const components: { title: string; href: string; description: string }[] = [
+const components: {
+  title: string;
+  href: string;
+  description: string;
+}[] = [
   {
-    title: "Alert Dialog",
-    href: "/docs/primitives/alert-dialog",
+    title: "Dashboard",
+    href: "/dashboard",
     description:
-      "A modal dialog that interrupts the user with important content and expects a response.",
+      "Your personal overview showing learning progress, consistency, recent activity, and key stats.",
   },
   {
-    title: "Hover Card",
-    href: "/docs/primitives/hover-card",
+    title: "Study Sessions",
+    href: "/session/newsession",
     description:
-      "For sighted users to preview content available behind a link.",
+      "Start focused study sessions, track time spent, and stay productive with a timer.",
   },
   {
-    title: "Progress",
-    href: "/docs/primitives/progress",
+    title: "Session History",
+    href: "/session/oldsessions",
     description:
-      "Displays an indicator showing the completion progress of a task, typically displayed as a progress bar.",
+      "Browse past study sessions with time, topics studied, and session notes for revision.",
   },
   {
-    title: "Scroll-area",
-    href: "/docs/primitives/scroll-area",
-    description: "Visually or semantically separates content.",
-  },
-  {
-    title: "Tabs",
-    href: "/docs/primitives/tabs",
+    title: "Questions",
+    href: "/question/newquestion",
     description:
-      "A set of layered sections of content—known as tab panels—that are displayed one at a time.",
+      "Track solved DSA questions, manage difficulty and importance, and revisit problems efficiently.",
   },
   {
-    title: "Tooltip",
-    href: "/docs/primitives/tooltip",
+    title: "Notes",
+    href: "/note/newnote",
     description:
-      "A popup that displays information related to an element when the element receives keyboard focus or the mouse hovers over it.",
+      "Organize topic-wise notes with explanations, code snippets, and set reminders for revision.",
   },
-]
+  {
+    title: "Habit Tracker",
+    href: "/planner",
+    description:
+      "Build consistency by tracking daily habits like coding, revision, and learning streaks.",
+  },
+  {
+    title: "Todos",
+    href: "/planner",
+    description:
+      "Manage daily tasks and priorities to stay organized and focused throughout your study plan.",
+  },
+  {
+    title: "Diary",
+    href: "/planner",
+    description:
+      "dodument your days by writing daily diary entries",
+  },
+  {
+    title: "Profile",
+    href: "/profile",
+    description:
+      "View your public learning profile with stats, activity history, and progress insights.",
+  },
+];
+
 
 export function NavigationMenuDemo() {
   const isMobile = useIsMobile()
@@ -76,11 +101,6 @@ export function NavigationMenuDemo() {
             </ul>
           </NavigationMenuContent>
         </NavigationMenuItem>
-        <NavigationMenuItem>
-          <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-            <Link href="/planner">Planner</Link>
-          </NavigationMenuLink>
-        </NavigationMenuItem>
         <NavigationMenuItem className="hidden md:block">
           <NavigationMenuTrigger>Questions</NavigationMenuTrigger>
           <NavigationMenuContent>
@@ -88,17 +108,17 @@ export function NavigationMenuDemo() {
               <li>
                 <NavigationMenuLink asChild>
                   <Link href="/question/newquestion">
-                    <div className="font-medium">New Question</div>
+                    <div className="font-medium">Add New Question</div>
                     <div className="text-muted-foreground">
-                      Browse all components in the library.
+                      add a new question and track its progress.
                     </div>
                   </Link>
                 </NavigationMenuLink>
                 <NavigationMenuLink asChild>
                   <Link href="/question/oldquestions">
-                    <div className="font-medium">Old Questions</div>
+                    <div className="font-medium">View Questions</div>
                     <div className="text-muted-foreground">
-                      Learn how to use the library.
+                      view all previous Questions
                     </div>
                   </Link>
                 </NavigationMenuLink>
@@ -113,17 +133,17 @@ export function NavigationMenuDemo() {
               <li>
                 <NavigationMenuLink asChild>
                   <Link href="/note/newnote">
-                    <div className="font-medium">Create a Quick-Note</div>
+                    <div className="font-medium">Add a Quick-Note</div>
                     <div className="text-muted-foreground">
-                      Browse all components in the library.
+                      add a new note and track its progress.
                     </div>
                   </Link>
                 </NavigationMenuLink>
                 <NavigationMenuLink asChild>
                   <Link href="/note/oldnotes">
-                    <div className="font-medium">View Old-Notes</div>
+                    <div className="font-medium">View Notes</div>
                     <div className="text-muted-foreground">
-                      Learn how to use the library.
+                      view all previous notes.
                     </div>
                   </Link>
                 </NavigationMenuLink>
@@ -138,17 +158,17 @@ export function NavigationMenuDemo() {
               <li>
                 <NavigationMenuLink asChild>
                   <Link href="/session/newsession">
-                    <div className="font-medium">Create Study-Session</div>
+                    <div className="font-medium">New Study-Session</div>
                     <div className="text-muted-foreground">
-                      Browse all components in the library.
+                      add a new focussed study session.
                     </div>
                   </Link>
                 </NavigationMenuLink>
                 <NavigationMenuLink asChild>
                   <Link href="/session/oldsessions">
-                    <div className="font-medium">View Old-Sessions</div>
+                    <div className="font-medium">Previous Sessions</div>
                     <div className="text-muted-foreground">
-                      Learn how to use the library.
+                      view all previous study sessions and details.
                     </div>
                   </Link>
                 </NavigationMenuLink>
@@ -156,7 +176,7 @@ export function NavigationMenuDemo() {
                   <div className="bg-zinc-200 hover:bg-zinc-200 font-thin">
                     <div className="font-medium">Stats About My Sessions*</div>
                     <div className="text-muted-foreground">
-                      Read our latest blog posts.
+                      carefully prepared insights about your study sessions.
                     </div>
                   </div>
                 </NavigationMenuLink>
@@ -165,33 +185,35 @@ export function NavigationMenuDemo() {
           </NavigationMenuContent>
         </NavigationMenuItem>
         
+        <NavigationMenuItem>
+          <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+            <Link href="/planner">Planner</Link>
+          </NavigationMenuLink>
+        </NavigationMenuItem>
+        
         <NavigationMenuItem className="hidden md:block">
-          <NavigationMenuTrigger>With Icon</NavigationMenuTrigger>
+          <NavigationMenuTrigger>others</NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="grid w-[200px] gap-4">
               <li>
                 <NavigationMenuLink asChild>
-                  <Link href="#" className="flex-row items-center gap-2">
-                    <CircleHelpIcon />
-                    Backlog
+                  <Link href="/diary" className="flex-row items-center gap-2">
+                    <NotebookPen /> 
+                    diary Entries
                   </Link>
                 </NavigationMenuLink>
-                <NavigationMenuLink asChild>
-                  <Link href="#" className="flex-row items-center gap-2">
-                    <CircleIcon />
-                    To Do
+                {/* <NavigationMenuLink asChild>
+                  <Link href="/habittrackr" className="flex-row items-center gap-2">
+                    <LineChart />
+                    habit tracker
                   </Link>
-                </NavigationMenuLink>
-                <NavigationMenuLink asChild>
-                  <Link href="#" className="flex-row items-center gap-2">
-                    <CircleCheckIcon />
-                    Done
-                  </Link>
-                </NavigationMenuLink>
+                </NavigationMenuLink> */}
+                
               </li>
             </ul>
           </NavigationMenuContent>
         </NavigationMenuItem>
+        
       </NavigationMenuList>
     </NavigationMenu>
   )

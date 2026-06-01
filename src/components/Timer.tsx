@@ -48,7 +48,7 @@ export default function Timer({ onData }: { onData: (data: any) => void }) {
   }, [timestamps, seconds]);
 
   return (
-    <div className="flex flex-col gap-10 w-full lg:w-1/2 mx-auto">
+    <div className="flex flex-col gap-10 w-full ">
 
       {/* DATE */}
       <div className="flex justify-left gap-2 w-fit text-xl md:text-2xl opacity-80 font-light text-center lg:text-left backdrop-blur-md bg-white/5 dark:bg-black/10" suppressHydrationWarning>
@@ -80,7 +80,17 @@ export default function Timer({ onData }: { onData: (data: any) => void }) {
       </div>
 
       {/* TIMER BOX */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-6 backdrop-blur-md bg-white/5 dark:bg-black/10 px-6 py-6 rounded-2xl shadow-md border border-white/10">
+      {/* TIMER BOX */}
+<div className="
+  inline-flex flex-col md:flex-row
+  items-center gap-6
+  w-fit
+  mx-auto lg:mx-0
+  backdrop-blur-md bg-white/5 dark:bg-black/10
+  px-6 py-6
+  rounded-2xl shadow-md
+  border border-white/10
+">
 
         {/* TIMER DISPLAY */}
         <div className="text-4xl sm:text-5xl md:text-6xl font-mono text-center" suppressHydrationWarning>

@@ -1,44 +1,59 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface ITodo extends Document {
-  user: mongoose.Types.ObjectId;
+  userId: mongoose.Types.ObjectId;
+
   title: string;
   description?: string;
-  priority: "low" | "medium" | "high";
-  dueDate?: Date;
+
   completed: boolean;
-  type: "task" | "habit" | "reminder";
-  repeat?: "daily" | "weekly" | "monthly" | "none";
+
+  dueDate?: Date;          // optional (for future reminders)
+  priority: "low" | "medium" | "high";
+
   createdAt: Date;
   updatedAt: Date;
 }
 
 const todoSchema = new Schema<ITodo>(
-  { 
-    user: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    title: { type: String, required: true },
-    description: { type: String },
+  {
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true,
+    },
+
+    title: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    description: {
+      type: String,
+      default: "",
+    },
+
+    completed: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+
+    dueDate: {
+      type: Date,
+    },
+
     priority: {
       type: String,
       enum: ["low", "medium", "high"],
       default: "medium",
-    },
-    dueDate: { type: Date },
-    completed: { type: Boolean, default: false },
-    type: {
-      type: String,
-      enum: ["task", "habit", "reminder"],
-      default: "task",
-    },
-    repeat: {
-      type: String,
-      enum: ["daily", "weekly", "monthly", "none"],
-      default: "none",
+      index: true,
     },
   },
   { timestamps: true }
 );
 
-const TodoModel = (mongoose.models.Todo as mongoose.Model<ITodo>) || (mongoose.model<ITodo>('Todo', todoSchema));
-
-export default TodoModel;
+export default mongoose.models.Todo ||
+  mongoose.model<ITodo>("Todo", todoSchema);

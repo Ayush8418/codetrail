@@ -3,8 +3,14 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import SessionNotes from "@/components/SessionNotes";
 import { toast } from "sonner";
+import RevisionManager from "@/components/RevisionManager";
 
-type Session = { _id: string; topic: string; description: string; duration: number; timestamps: string[]; startTime: string; endTime: string; createdAt: string };
+type Revision = {
+  _id?: string;
+  date: string;
+  done: boolean;
+};
+type Session = { _id: string; topic: string; description: string; duration: number; timestamps: string[]; startTime: string; endTime: string; createdAt: string; revisions: Revision[]; };
 
 export default function StudySessionDetailPage() {
   const { sessionId } = useParams();
@@ -15,17 +21,33 @@ export default function StudySessionDetailPage() {
   const [prevId, setPrevId] = useState<string | null>(null);
   const [nextId, setNextId] = useState<string | null>(null);
   const [formData, setFormData] = useState({ topic: "", description: "" });
+  const [revisions, setRevisions] = useState<Revision[]>([]);
+
+
 
   useEffect(() => {
     const fetchSession = async () => {
       const res = await fetch(`/api/session/${sessionId}`);
       const json = await res.json();
-      if (!json.success) return setError("Failed to fetch session");
+
+      if (!json.success) {
+        setError("Failed to fetch session");
+        return;
+      }
+
       setSession(json.data);
-      setFormData({ topic: json.data.topic, description: json.data.description });
+      setFormData({
+        topic: json.data.topic,
+        description: json.data.description,
+      });
+
+      // ✅ THIS WAS MISSING
+      setRevisions(json.data.revisions || []);
     };
+
     fetchSession();
   }, [sessionId]);
+
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -56,13 +78,24 @@ export default function StudySessionDetailPage() {
   const formatTime = (t: number) => new Date(t).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
 
   const updateSession = async () => {
-    const res = await fetch(`/api/session/${sessionId}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(formData) });
-    const json = await res.json();
-    if (json.success) {
-      setSession(json.data);
-      toast.success("Session updated successfully!");
-    }
-  };
+  const res = await fetch(`/api/session/${sessionId}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      topic: formData.topic,
+      description: formData.description,
+      revisions,
+    }),
+  });
+
+  const json = await res.json();
+  if (json.success) {
+    setSession(json.data);
+    setRevisions(json.data.revisions || []); // ✅ sync back
+    toast.success("Session updated successfully!");
+  }
+};
+
 
   const deleteSession = async () => {
     if (!confirm("⚠️ WARNING!\nThis will permanently DELETE this session.\nThis action CANNOT be undone.\nContinue?")) return;
@@ -70,15 +103,17 @@ export default function StudySessionDetailPage() {
     window.location.href = "/dashboard";
   };
 
-  let activeSeconds = 0;
-  for (let i = 0; i < session.timestamps.length; i += 2) {
-    const s = new Date(session.timestamps[i]).getTime();
-    const e = new Date(session.timestamps[i + 1]).getTime();
-    if (s && e && e > s) activeSeconds += Math.floor((e - s) / 1000);
-  }
+  const activeSeconds = session.duration;
 
-  const totalSeconds = Math.max(Math.floor((end - start) / 1000), 1);
-  const activePercent = Math.round((activeSeconds / totalSeconds) * 100);
+  const totalSeconds = Math.max(
+    Math.floor((end - start) / 1000),
+    1
+  );
+
+  const activePercent = Math.min(
+    100,
+    Math.round((activeSeconds / totalSeconds) * 100)
+  );
   const focusSegments = Math.floor(session.timestamps.length / 2);
 
   const formatDuration = (sec: number) => {
@@ -120,9 +155,14 @@ export default function StudySessionDetailPage() {
         </div>
       </div>
 
-      <SessionNotes initialTopic={formData.topic} initialDescription={formData.description} isExpanded={true} toggleExpand={() => {}} onData={(data) => setFormData((prev) => ({ ...prev, ...data }))} />
+      <SessionNotes initialTopic={formData.topic} initialDescription={formData.description} onData={(data) => setFormData((prev) => ({ ...prev, ...data }))} />
 
-      <div className="flex justify-end gap-4 pt-10 border-t">
+      <RevisionManager
+        revisions={revisions}
+        setRevisions={setRevisions}
+      />
+
+      <div className="flex justify-center gap-4 pt-10 border-t">
         <button onClick={updateSession} className="px-6 py-3 rounded-xl bg-green-600 text-white font-semibold shadow-md hover:shadow-lg transition">Save Changes</button>
         <button onClick={deleteSession} className="px-6 py-3 rounded-xl bg-red-600 text-white font-semibold shadow-md hover:shadow-lg transition">Delete Session</button>
       </div>

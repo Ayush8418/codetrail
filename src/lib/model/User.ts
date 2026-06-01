@@ -24,18 +24,10 @@ export interface IUser extends Document {
   // Tracking stats
   totalQuestionsSolved: number;
   totalNotes: number;
-  topicsCovered: number;
-  streak: number;
 
   // Preferences
   theme: "light" | "dark";
   reminderEnabled: boolean;
-
-  // Relationships
-  notes: mongoose.Types.ObjectId[];
-  questions: mongoose.Types.ObjectId[];
-  studySessions: mongoose.Types.ObjectId[];
-  todos: mongoose.Types.ObjectId[];
 
   createdAt: Date;
   updatedAt: Date;
@@ -67,16 +59,9 @@ const userSchema = new Schema<IUser>(
 
     totalQuestionsSolved: { type: Number, default: 0 },
     totalNotes: { type: Number, default: 0 },
-    topicsCovered: { type: Number, default: 0 },
-    streak: { type: Number, default: 0 },
 
     theme: { type: String, enum: ["light", "dark"], default: "light" },
     reminderEnabled: { type: Boolean, default: true },
-
-    notes: [{ type: Schema.Types.ObjectId, ref: "Note" }],
-    questions: [{ type: Schema.Types.ObjectId, ref: "Question" }],
-    studySessions: [{ type: Schema.Types.ObjectId, ref: "StudySession" }],
-    todos: [{ type: Schema.Types.ObjectId, ref: "Todo" }],
   },
   { timestamps: true }
 );

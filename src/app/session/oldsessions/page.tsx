@@ -1,34 +1,59 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "sonner";
 
-type Session = { _id: string; topic: string; duration: number; createdAt: string; startTime: string; endTime: string; timestamps: string[] };
+type Session = {
+  _id: string;
+  topic: string;
+  description?: string;
+  duration: number;
+  createdAt: string;
+  startTime: string;
+  endTime: string;
+  timestamps: string[];
+};
+
+
 const rowsPerPage = 15;
 
 export default function OldSessionsPage() {
-  const [data, setData] = useState<Session[]>([]);
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  // UI state
   const [search, setSearch] = useState("");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
 
-  // applied filters (used for API)
-  const [filters, setFilters] = useState({ search: "", sort: "desc", fromDate: "", toDate: "" });
+  const [filters, setFilters] = useState({
+    search: "",
+    sort: "desc",
+    fromDate: "",
+    toDate: "",
+  });
 
   useEffect(() => {
-    axios.get("/api/session", {
-      params: { page, limit: rowsPerPage, ...filters },
-    })
-    .then(res => {
-      setData(res.data.data);
-      setTotalPages(res.data.pagination.totalPages);
-    })
-    .catch(() => toast.error("Failed to load sessions"));
+    setLoading(true);
+    axios
+      .get("/api/session", {
+        params: { page, limit: rowsPerPage, ...filters },
+      })
+      .then((res) => {
+        setSessions(res.data.data || []);
+        setTotalPages(res.data.pagination.totalPages);
+        setError("");
+      })
+      .catch(() => {
+        setError("Failed to load sessions");
+        toast.error("Failed to load sessions");
+      })
+      .finally(() => setLoading(false));
   }, [page, filters]);
 
   const applyFilters = () => {
@@ -37,108 +62,175 @@ export default function OldSessionsPage() {
   };
 
   const handleDelete = async (id: string, topic: string) => {
-    if (!confirm(`⚠️ Delete session:\n\n"${topic}"\n\nThis cannot be undone.`)) return;
+    if (!confirm(`Delete session "${topic}"?`)) return;
     try {
       await axios.delete(`/api/session/${id}`);
-      setData(d => d.filter(s => s._id !== id));
-    } catch { toast.error("Delete failed"); }
+      setSessions((prev) => prev.filter((s) => s._id !== id));
+    } catch {
+      toast.error("Delete failed");
+    }
   };
 
   const d = (x: string) => new Date(x);
-  const fmtDate = (x: string) => d(x).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
-  const fmtTime = (x: string) => d(x).toLocaleString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
-  const dur = (s: number) => s >= 3600 ? `${Math.floor(s/3600)}hr ${Math.floor(s%3600/60)}min` : s >= 60 ? `${Math.floor(s/60)}min ${s%60}s` : `${s}s`;
+  const fmtDate = (x: string) =>
+    d(x).toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  const fmtTime = (x: string) =>
+    d(x).toLocaleString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  const dur = (s: number) =>
+    s >= 3600
+      ? `${Math.floor(s / 3600)}h ${Math.floor((s % 3600) / 60)}m`
+      : s >= 60
+      ? `${Math.floor(s / 60)}m ${s % 60}s`
+      : `${s}s`;
+
+  /* ================= UI STATES ================= */
+
+  if (loading) {
+    return <div className="p-6 text-gray-500">Loading sessions...</div>;
+  }
+
+  if (error) {
+    return <div className="p-6 text-red-500">{error}</div>;
+  }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto border shadow-md backdrop-blur-md bg-white/5 dark:bg-black/10 
-                      rounded-2xl">
-      <h1 className="text-4xl font-extrabold text-center mb-10">Old Sessions</h1>
+    <div className="min-h-screen p-6 bg-gray-50 dark:bg-zinc-950">
+      {/* HEADER */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-semibold text-gray-900 dark:text-zinc-100">
+          Old Sessions
+        </h1>
+        <p className="text-sm text-gray-500 dark:text-zinc-400">
+          Total sessions: {sessions.length}
+        </p>
+      </div>
 
-      {/* Filters */}
-      <div className="mb-10 p-4 bg-white/60 dark:bg-zinc-900/60 flex flex-wrap justify-center gap-4">
-        <input className="px-4 py-2 border" placeholder="Search topic..." value={search} onChange={e => setSearch(e.target.value)} />
+      {/* FILTER BAR (kept minimal & consistent) */}
+      <div className="mb-6 flex flex-wrap gap-3">
+        <input
+          placeholder="Search topic..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="px-3 py-2 text-sm rounded-lg border dark:bg-zinc-950"
+        />
 
         <button
-          className="px-5 py-2 text-white rounded bg-gradient-to-r from-indigo-500 to-purple-500 hover:opacity-90"
-          onClick={() => setSortOrder(o => o === "asc" ? "desc" : "asc")}
+          onClick={() =>
+            setSortOrder((o) => (o === "asc" ? "desc" : "asc"))
+          }
+          className="px-3 py-2 text-sm rounded-lg border hover:bg-gray-100 dark:hover:bg-zinc-800"
         >
-          Sort: {sortOrder === "asc" ? "Oldest" : "Newest"}
+          {sortOrder === "asc" ? "Oldest first" : "Newest first"}
         </button>
 
-        <input type="date" value={fromDate} onChange={e => setFromDate(e.target.value)} />
-        <input type="date" value={toDate} onChange={e => setToDate(e.target.value)} />
+        <input
+          type="date"
+          value={fromDate}
+          onChange={(e) => setFromDate(e.target.value)}
+          className="px-3 py-2 text-sm rounded-lg border"
+        />
+
+        <input
+          type="date"
+          value={toDate}
+          onChange={(e) => setToDate(e.target.value)}
+          className="px-3 py-2 text-sm rounded-lg border"
+        />
 
         <button
           onClick={applyFilters}
-          className="px-5 py-2 text-white rounded bg-gradient-to-r from-emerald-500 to-teal-500 hover:opacity-90"
+          className="px-4 py-2 text-sm rounded-lg bg-gray-900 text-white dark:bg-white dark:text-black"
         >
-          Search
+          Apply
         </button>
-
-        {(search || fromDate || toDate) && (
-          <button
-            onClick={() => { setSearch(""); setFromDate(""); setToDate(""); setPage(1); setFilters({ search:"", sort:"desc", fromDate:"", toDate:"" }); }}
-            className="px-4 py-2 rounded bg-gradient-to-r from-gray-400 to-gray-600 text-white hover:opacity-90"
-          >
-            Clear ✕
-          </button>
-        )}
       </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-lg">
-          <thead>
-            <tr className="bg-gray-100 dark:bg-zinc-800 text-center">
-              {["Sr","Topic","Created","Start","End","Duration","Active %","Delete"].map(h => (
-                <th key={h} className="p-4">{h}</th>
-              ))}
-            </tr>
-          </thead>
+      {/* EMPTY STATE */}
+      {sessions.length === 0 && (
+        <div className="text-gray-500">
+          No sessions found.
+        </div>
+      )}
 
-          <tbody>
-            {data.map((item, i) => {
-              const start = item.startTime && d(item.startTime);
-              const end = item.endTime && d(item.endTime);
-              const total = start && end ? Math.max(1, Math.floor((+end - +start) / 1000)) : 1;
-              const active = Math.min(100, Math.round(item.duration / total * 100));
+      {/* SESSION LIST */}
+      <div className="space-y-4">
+        {sessions.map((s) => {
+          const start = s.startTime && d(s.startTime);
+          const end = s.endTime && d(s.endTime);
 
-              return (
-                <tr key={item._id} className="hover:bg-gray-200 dark:hover:bg-zinc-800 cursor-pointer"
-                  onClick={() => location.href = `/session/oldsessions/${item._id}`}>
-                  <td className="p-4">{(page - 1) * rowsPerPage + i + 1}</td>
-                  <td className="p-4 text-left w-[30%]">{item.topic}</td>
-                  <td className="p-4">{fmtDate(item.createdAt)}</td>
-                  <td className="p-4">{start ? fmtTime(start.toString()) : "-"}</td>
-                  <td className="p-4">{end ? fmtTime(end.toString()) : "-"}</td>
-                  <td className="p-4">{dur(item.duration)}</td>
-                  <td className="p-4">{active}%</td>
-                  <td className="p-4">
-                    <button
-                      className="px-3 py-1 text-white rounded bg-gradient-to-r from-red-500 to-rose-500 hover:opacity-90"
-                      onClick={e => { e.stopPropagation(); handleDelete(item._id, item.topic); }}
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+          return (
+            <div
+              key={s._id}
+              onClick={() =>
+                (location.href = `/session/oldsessions/${s._id}`)
+              }
+              className="
+                rounded-xl p-4 cursor-pointer
+                bg-white dark:bg-zinc-900
+                border border-gray-200 dark:border-zinc-800
+                hover:shadow-md transition
+              "
+            >
+              {/* TOP ROW */}
+              <div className="flex justify-between items-center mb-2">
+                <h2 className="text-lg font-medium text-gray-900 dark:text-zinc-100">
+                  {s.topic}
+                </h2>
+
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete(s._id, s.topic);
+                  }}
+                  className="text-xs px-2 py-1 rounded-md bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400"
+                >
+                  Delete
+                </button>
+              </div>
+
+              {/* DESCRIPTION PREVIEW */}
+{s.description && (
+  <div
+    className="text-sm text-gray-600 dark:text-zinc-400 line-clamp-2"
+    dangerouslySetInnerHTML={{ __html: s.description }}
+  />
+)}
+
+
+              {/* META INFO */}
+              <div className="text-sm text-gray-600 dark:text-zinc-400 flex flex-wrap gap-4 mt-2">
+                <span>Created: {fmtDate(s.createdAt)}</span>
+                <span>Start: {start ? fmtTime(start.toString()) : "-"}</span>
+                <span>End: {end ? fmtTime(end.toString()) : "-"}</span>
+                <span>Duration: {dur(s.duration)}</span>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
-      {/* Pagination */}
-      <div className="flex justify-center mt-8 gap-2">
+      {/* PAGINATION */}
+      <div className="flex justify-center gap-2 mt-8">
         {Array.from({ length: totalPages }).map((_, i) => (
           <button
             key={i}
             onClick={() => setPage(i + 1)}
-            className={`px-4 py-2 rounded border transition ${
-              page === i + 1
-                ? "bg-gradient-to-r from-gray-700 to-gray-900 text-white"
-                : "hover:bg-gray-200 dark:hover:bg-zinc-700"
-            }`}
+            className={`
+              px-3 py-1 text-sm rounded-lg border
+              ${
+                page === i + 1
+                  ? "bg-gray-900 text-white dark:bg-white dark:text-black"
+                  : "hover:bg-gray-100 dark:hover:bg-zinc-800"
+              }
+            `}
           >
             {i + 1}
           </button>

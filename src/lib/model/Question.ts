@@ -2,16 +2,12 @@ import mongoose, { Schema, Document } from "mongoose";
 
 export interface IQuestion extends Document {
   user: mongoose.Types.ObjectId;
-  name: string;
-  topic: string[];
+  subject: string;
+  name: string[];
   difficulty: "easy" | "medium" | "hard";
   importance: "low" | "medium" | "high";
-  description?: string;
-  note?: string;
-  code?: string;
-  solution?: string;
-  links?: string[];
-  revised: boolean;
+  question: string;
+  solution: string;
   createdAt: Date;
   updatedAt: Date;
   revisions: {
@@ -23,8 +19,8 @@ export interface IQuestion extends Document {
 const questionSchema = new Schema<IQuestion>(
   {
     user: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    name: { type: String, required: true },
-    topic: [{ type: String, required: true }],
+    name: [{ type: String, required: true }],
+    subject: { type: String, required: true },
     difficulty: {
       type: String,
       enum: ["easy", "medium", "hard"],
@@ -35,12 +31,8 @@ const questionSchema = new Schema<IQuestion>(
       enum: ["low", "medium", "high"],
       default: "medium",
     },
-    description: { type: String },
-    note: { type: String },
-    code: { type: String },
+    question: { type: String },
     solution: { type: String },
-    links: [{ type: String }],
-    revised: { type: Boolean, default: false },
     revisions: [
       {
         date: { type: Date, required: true },
