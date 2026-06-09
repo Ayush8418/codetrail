@@ -18,8 +18,8 @@ export async function GET(
         { status: 401 }
       );
     }
-
-    const subject = decodeURIComponent(params.subject);
+    const resolvedParams = await params;
+    const subject = decodeURIComponent(resolvedParams.subject);
 
     const { searchParams } = new URL(request.url);
     const page = Number(searchParams.get("page") || 1);

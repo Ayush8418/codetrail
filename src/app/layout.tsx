@@ -8,6 +8,7 @@ import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]/route";
 import { Toaster } from "sonner";
+import Logout from "@/components/Logout";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,7 +35,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <Providers>
           <div className="flex justify-between px-6 py-2 sticky top-0 z-50 backdrop-blur-md bg-white/40 dark:bg-black/40 border-b dark:border-gray-700">
             <div className="flex gap-10">
-              <Link href="/"><div className="text-3xl font-extrabold">logo</div></Link>
+              <Link href="/"><div className="text-3xl font-extrabold">CodeTrail{"</>"}</div></Link>
               <NavigationMenuDemo />
             </div>
 
@@ -51,14 +52,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 </div>
                 :
                 <div className="flex justify-center gap-1 items-center">
-                  <Link href="/profile" className="px-4 py-1 rounded-md border bg-white hover:bg-black hover:text-white dark:bg-black dark:hover:bg-white dark:hover:text-black">
+                  {/* <Link href="/profile" className="px-3 py-1 rounded-md border bg-white hover:bg-black hover:text-white dark:bg-black dark:hover:bg-white dark:hover:text-black flex items-center gap-1.5">
+                    <UserCircle size={16} />
                     Profile
                   </Link>
-                  <p className="text-xl">/</p>
-                  <Link href="/api/auth/signout" className="px-4 py-1 rounded-md border bg-white hover:bg-black hover:text-white dark:bg-black dark:hover:bg-white dark:hover:text-black">
-                    Logout
-                  </Link>
-                </div>              
+                  <p className="text-xl">/</p> */}
+                  <Logout/>
+                </div>         
               }
               <ThemeToggle />
             </div>

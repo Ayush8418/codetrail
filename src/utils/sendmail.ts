@@ -1,20 +1,22 @@
 "use server";
 
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 import { randomBytes } from "crypto";
 import UserModel from "@/lib/model/User";
 import dbConnect from "@/lib/dbConnect";
 
-const resend = new Resend(process.env.RESEND_API_KEY || "");
-
 /**
- * Unified response format
+ * Reusable Nodemailer transporter
  */
-interface MailResponse {
-  success: boolean;
-  message: string;
-  error?: string;
-}
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST,
+  port: Number(process.env.SMTP_PORT) || 587,
+  secure: process.env.SMTP_SECURE === "true", // true for port 465, false for 587
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
+});
 
 /**
  * Send password reset email
@@ -41,9 +43,9 @@ export async function sendResetEmail(to: string): Promise<boolean> {
 
     const recoveryLink = `${process.env.DOMAIN_URL}/auth/reset?token=${token}`;
 
-    const { error } = await resend.emails.send({
-      from: "Acme <onboarding@resend.dev>",
-      to: "harshweather2712@gmail.com",
+    await transporter.sendMail({
+      from: `"${process.env.MAIL_FROM_NAME || "Support"}" <${process.env.SMTP_USER}>`,
+      to, // ✅ sends to the actual user's email
       subject: "Password Reset",
       html: `
         <h1>Password Reset</h1>
@@ -54,11 +56,6 @@ export async function sendResetEmail(to: string): Promise<boolean> {
         <p>This link will expire in 10 minutes.</p>
       `,
     });
-
-    if (error) {
-      console.error("[Resend API Error]:", error);
-      return false;
-    }
 
     console.log(`[sendResetEmail] Reset email sent to ${to}`);
     return true;
@@ -93,10 +90,9 @@ export async function sendVerificationEmail(to: string): Promise<boolean> {
 
     const verifyLink = `${process.env.DOMAIN_URL}/api/auth/verify?token=${token}`;
 
-
-    const { error } = await resend.emails.send({
-      from: "Acme <onboarding@resend.dev>",
-      to: "harshweather2712@gmail.com",
+    await transporter.sendMail({
+      from: `"${process.env.MAIL_FROM_NAME || "Support"}" <${process.env.SMTP_USER}>`,
+      to, // ✅ sends to the actual user's email
       subject: "Verify Your Email",
       html: `
         <h1>Email Verification</h1>
@@ -107,11 +103,6 @@ export async function sendVerificationEmail(to: string): Promise<boolean> {
         <p>This link will expire in 10 minutes.</p>
       `,
     });
-
-    if (error) {
-      console.error("[Resend API Error]:", error);
-      return false;
-    }
 
     console.log(`[sendVerificationEmail] Verification email sent to ${to}`);
     return true;

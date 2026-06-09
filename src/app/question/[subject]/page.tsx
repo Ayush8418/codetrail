@@ -153,7 +153,7 @@ export default function SubjectQuestionsPage() {
   };
 
   return (
-    <div className="flex h-[calc(100vh-160px)] bg-white dark:bg-black overflow-hidden">
+    <div className="flex h-[calc(100vh-55px)] bg-white dark:bg-black overflow-hidden">
 
       {/* ── LEFT: Question list ── */}
       <div className="w-72 shrink-0 border-r border-zinc-200 dark:border-zinc-800 flex flex-col overflow-hidden">

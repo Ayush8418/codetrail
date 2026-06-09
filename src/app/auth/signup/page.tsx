@@ -140,7 +140,7 @@ export default function SignupPage() {
             Continue with Google
           </Button>
 
-          <Button
+          {/* <Button
             variant="outline"
             className="w-full"
             onClick={() => signIn("github")}
@@ -166,7 +166,7 @@ export default function SignupPage() {
                 C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" />
             </svg>
             Continue with GitHub
-          </Button>
+          </Button> */}
         </CardFooter>
       </Card>
     </main>

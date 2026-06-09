@@ -41,13 +41,13 @@ const components: {
   },
   {
     title: "Questions",
-    href: "/question/newquestion",
+    href: "/question",
     description:
       "Track solved DSA questions, manage difficulty and importance, and revisit problems efficiently.",
   },
   {
     title: "Notes",
-    href: "/note/newnote",
+    href: "/note",
     description:
       "Organize topic-wise notes with explanations, code snippets, and set reminders for revision.",
   },
@@ -68,13 +68,14 @@ const components: {
     href: "/planner",
     description:
       "dodument your days by writing daily diary entries",
-  },
-  {
-    title: "Profile",
-    href: "/profile",
-    description:
-      "View your public learning profile with stats, activity history, and progress insights.",
-  },
+  }
+  // ,
+  // {
+  //   title: "Profile",
+  //   href: "/profile",
+  //   description:
+  //     "View your public learning profile with stats, activity history, and progress insights.",
+  // },
 ];
 
 
@@ -101,7 +102,9 @@ export function NavigationMenuDemo() {
             </ul>
           </NavigationMenuContent>
         </NavigationMenuItem>
-        <NavigationMenuItem className="hidden md:block">
+
+        
+        {/* <NavigationMenuItem className="hidden md:block">
           <NavigationMenuTrigger>Questions</NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="grid w-[300px] gap-4">
@@ -150,7 +153,20 @@ export function NavigationMenuDemo() {
               </li>
             </ul>
           </NavigationMenuContent>
+        </NavigationMenuItem> */}
+
+        <NavigationMenuItem>
+          <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+            <Link href="/question/">Questions</Link>
+          </NavigationMenuLink>
         </NavigationMenuItem>
+
+        <NavigationMenuItem>
+          <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+            <Link href="/note/">Notes</Link>
+          </NavigationMenuLink>
+        </NavigationMenuItem>
+
         <NavigationMenuItem className="hidden md:block">
           <NavigationMenuTrigger>Session</NavigationMenuTrigger>
           <NavigationMenuContent>

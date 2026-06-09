@@ -145,7 +145,7 @@ export default function SignInPage() {
           </Button>
 
           {/* GitHub */}
-          <Button
+          {/* <Button
             variant="outline"
             className="w-full flex items-center gap-2"
             onClick={() => signIn("github", { callbackUrl })}
@@ -171,7 +171,7 @@ export default function SignInPage() {
                 C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" />
             </svg>
             Login with GitHub
-          </Button>
+          </Button> */}
         </CardFooter>
       </Card>
     </main>
