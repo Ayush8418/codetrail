@@ -47,8 +47,8 @@ export async function GET(req: NextRequest) {
       { new: true }
     );
 
-    const redirectUrl = process.env.NEXTAUTH_URL || req.nextUrl.origin;
-    return NextResponse.redirect(new URL("/", redirectUrl));
+    const redirectUrl = process.env.NEXTAUTH_URL;
+    return NextResponse.redirect(new URL("/auth/signin", redirectUrl));
   }
 
   return htmlResponse(
