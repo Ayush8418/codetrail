@@ -92,7 +92,6 @@ export default function HabitTracker() {
   });
 
   if (!res.ok) {
-    const err = await res.json();
     toast.error("Action not allowed");
     return;
   }

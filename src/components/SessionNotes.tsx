@@ -39,7 +39,7 @@
 }) {
 
     const [topic, setTopic] = useState(initialTopic || "");
-
+    
     const editor = useEditor({
       extensions: [
         StarterKit.configure({
@@ -61,6 +61,7 @@
 
     useEffect(() => {
       setTopic(initialTopic || "");
+      console.log(mode);
     }, [initialTopic]);
 
     useEffect(() => {

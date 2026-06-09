@@ -95,7 +95,7 @@ export const authOptions: NextAuthOptions = {
     async signIn({ user, account, profile }) {
       try {
         await connectDB();
-
+        user.email = user.email?.toLowerCase() ?? null; // Normalize email
         // ---------- GOOGLE LOGIN ----------
         if (account?.provider === "google" && profile?.email) {
           // Check if user already exists

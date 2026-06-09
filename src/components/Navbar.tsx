@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { LineChart, NotebookPen } from "lucide-react";
+import { NotebookPen } from "lucide-react";
 
 
 import { useIsMobile } from "@/hooks/use-mobile"

@@ -16,8 +16,6 @@ export default function StudySessionDetailPage() {
   const { sessionId } = useParams();
   const router = useRouter();
   const [session, setSession] = useState<Session | null>(null);
-  const [error, setError] = useState("");
-  const [allSessions, setAllSessions] = useState<Session[]>([]);
   const [prevId, setPrevId] = useState<string | null>(null);
   const [nextId, setNextId] = useState<string | null>(null);
   const [formData, setFormData] = useState({ topic: "", description: "" });
@@ -31,7 +29,6 @@ export default function StudySessionDetailPage() {
       const json = await res.json();
 
       if (!json.success) {
-        setError("Failed to fetch session");
         return;
       }
 
@@ -55,7 +52,6 @@ export default function StudySessionDetailPage() {
       const json = await res.json();
       if (!json.success) return;
       const sorted = json.data.sort((a: Session, b: Session) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-      setAllSessions(sorted);
       const index = sorted.findIndex((s: Session) => s._id === sessionId);
       if (index > 0) setPrevId(sorted[index - 1]._id);
       if (index < sorted.length - 1) setNextId(sorted[index + 1]._id);

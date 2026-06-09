@@ -2,12 +2,10 @@
 
 import { useState } from "react";
 
-const BUDGETS = ["$1-5K", "$5-10K", "$10-20K", "$20-50K", ">$50K"];
 
 export default function ContactForm() {
   const [name, setName] = useState("");
   const [service, setService] = useState("");
-  const [budget, setBudget] = useState("");
   const [email, setEmail] = useState("");
   const [details, setDetails] = useState("");
   const [submitted, setSubmitted] = useState(false);
@@ -19,7 +17,6 @@ export default function ContactForm() {
     if (e.name || e.email) return;
 
     // 🔒 replace with your API call
-    console.log({ name, service, budget, email, details });
     setSubmitted(true);
   };
 

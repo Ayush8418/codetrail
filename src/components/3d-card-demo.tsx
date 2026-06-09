@@ -2,12 +2,11 @@
 
 import React from "react";
 import { CardBody, CardContainer, CardItem } from "@/components/ui/3d-card";
-import Link from "next/link";
 import Image from "next/image";
 
 export default function ThreeDCardDemo({key, card}: {key: number, card: {title: string, description: string, imageSrc: string, link: string}}) {
   return (
-    <CardContainer className="inter-var">
+    <CardContainer className="inter-var" key={key}>
       <CardBody className="bg-gray-100 relative group/card  dark:hover:shadow-2xl dark:hover:shadow-emerald-500/[0.1] dark:bg-zinc-900 dark:border-white/[0.2] border-black/[0.1] w-auto sm:w-[30rem] h-auto rounded-xl p-6 border  ">
         <CardItem
           translateZ="50"

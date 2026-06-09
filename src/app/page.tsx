@@ -7,7 +7,6 @@
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { getServerSession } from "next-auth"
 import { BackgroundLines } from "@/components/ui/background-lines";
-import Carousel from "@/components/ui/carousel";
 import React from "react";
 import HeroSectionOne from "@/components/hero-section-demo-1";
 import ThreeDCardDemo from "@/components/3d-card-demo";
@@ -15,10 +14,10 @@ import { SquigglyText } from "@/components/ui/squiggly-text";
 import { cn } from "@/lib/utils"
 import { Marquee } from "@/components/ui/marquee";
 import ContactForm from "@/components/ContactForm";
+import Image from "next/image";
 
 export default async function HomePage(){
   
-  const session = await getServerSession(authOptions);
   const reviews = [
   {
     name: "Jack",
@@ -57,28 +56,7 @@ export default async function HomePage(){
     img: "https://avatar.vercel.sh/james",
   },
 ]
-  const slideData = [
-    {
-      title: "Mystic Mountains",
-      button: "Explore Component",
-      src: "https://images.unsplash.com/photo-1494806812796-244fe51b774d?q=80&w=3534&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
-      title: "Urban Dreams",
-      button: "Explore Component",
-      src: "https://images.unsplash.com/photo-1518710843675-2540dd79065c?q=80&w=3387&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
-      title: "Neon Nights",
-      button: "Explore Component",
-      src: "https://images.unsplash.com/photo-1590041794748-2d8eb73a571c?q=80&w=3456&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
-      title: "Desert Whispers",
-      button: "Explore Component",
-      src: "https://images.unsplash.com/photo-1679420437432-80cfbf88986c?q=80&w=3540&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-  ];
+
 
   const CardContent = [
     {
@@ -143,7 +121,7 @@ const ReviewCard = ({
       )}
     >
       <div className="flex flex-row items-center gap-2">
-        <img className="rounded-full" width="32" height="32" alt="" src={img} />
+        <Image className="rounded-full" width="32" height="32" alt="" src={img} />
         <div className="flex flex-col">
           <figcaption className="text-sm font-medium dark:text-white">
             {name}
