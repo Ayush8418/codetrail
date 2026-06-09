@@ -6,7 +6,7 @@ import QuestionModel from "@/lib/model/Question";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { subject: string } }
+  { params }: {params: Promise<{ subject: string }> }
 ) {
   try {
     await connectDB();
@@ -19,7 +19,8 @@ export async function GET(
       );
     }
 
-    const subject = decodeURIComponent(params.subject);
+    const { subject } = await params;
+    const decodedSubject = decodeURIComponent(subject);
 
     const { searchParams } = new URL(request.url);
     const page = Number(searchParams.get("page") || 1);
@@ -29,7 +30,7 @@ export async function GET(
 
     const questions = await QuestionModel.find({
       user: userId,
-      subject,
+      subject: decodedSubject,
     })
       .sort({ createdAt: -1 }) // 🔥 latest first
       .skip(skip)
@@ -41,7 +42,7 @@ export async function GET(
       data: questions,
       page,
       limit,
-      subject,
+      subject: decodedSubject,
     });
   } catch (error) {
     console.error("GET SUBJECT QUESTIONS ERROR:", error);

@@ -6,20 +6,22 @@ import NoteModel from "@/lib/model/Note";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { subject: string } }
+  { params }: { params: Promise<{ subject: string }> }
 ) {
   try {
     await connectDB();
- 
+
     const userId = request.headers.get("x-user-id");
+
     if (!userId) {
       return NextResponse.json(
         { success: false, message: "Not authenticated" },
         { status: 401 }
       );
     }
-    const resolvedParams = await params;
-    const subject = decodeURIComponent(resolvedParams.subject);
+
+    const { subject } = await params;
+    const decodedSubject = decodeURIComponent(subject);
 
     const { searchParams } = new URL(request.url);
     const page = Number(searchParams.get("page") || 1);
@@ -29,12 +31,14 @@ export async function GET(
 
     const notes = await NoteModel.find({
       user: userId,
-      subject,
+      subject: decodedSubject,
     })
-      .sort({ createdAt: -1 }) // 🔥 latest first
+      .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .lean();
+
+    // ...
 
     return NextResponse.json({
       success: true,
